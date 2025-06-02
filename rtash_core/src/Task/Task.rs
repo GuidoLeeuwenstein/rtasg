@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 enum TaskStatus {
     Pending,
     InProgress,
@@ -9,6 +11,8 @@ struct Task {
     title: String,
     description: String,
     status: TaskStatus,
+    date_created: SystemTime,
+    date_updated: SystemTime
 }
 
 impl Task {
@@ -18,20 +22,21 @@ impl Task {
             title,
             description,
             status: TaskStatus::Pending,
-        }
+            date_created: SystemTime::new(),
+            date_updated: SystemTime::new()
+        };
     }
 
     fn start(&mut self) {
         self.status = TaskStatus::InProgress;
+         self.date_updated = SystemTime::new()
     }
 
     fn complete(&mut self) {
         self.status = TaskStatus::Completed;
+        self.date_updated = SystemTime::new()
     }
 
-    fn get_status(&self) -> &TaskStatus {
-        &self.status
-    }
 }
 
 
