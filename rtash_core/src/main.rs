@@ -1,4 +1,4 @@
-use std::time::SystemTime;
+use std::{time::SystemTime};
 
 #[derive(Debug, Copy, Clone)]
 enum TaskStatus {
@@ -9,38 +9,50 @@ enum TaskStatus {
 }
 
 #[derive(Debug, Copy, Clone)]
-struct Task<'a> {
+struct Task {
     id: u16,
-    name: &'a str,
-    discription: &'a str,
+    name: [u8; 256],
+    discription: [u8; 256],
     status: TaskStatus,
     date_created: SystemTime,
     data_updated: SystemTime,
 }
 
-impl<'a> Task<'a> {
-    fn new(id: u16, name: &'a str, discription: &'a str) -> Task<'a> {
+impl Task {
+    fn new(id: u16, name: &str, discription: &str) -> Result<Task, &'static str> {
         let current_datetime = SystemTime::now();
-        Task {
+        if name.len() > 256 {
+           return Err("Name to long");
+        }
+        if discription.len() > 256 {
+           return Err("Name to long");
+        }
+
+        let mut name_arr = [0;256];
+        let mut descritpion_arr = [0;256];
+        &name_arr.copy_from_slice(name.as_bytes());
+        &descritpion_arr.copy_from_slice(name.as_bytes());
+
+        return Ok(Task {
             id,
-            name: name,
-            discription: discription,
+            name: name_arr,
+            discription: descritpion_arr,
             status: TaskStatus::Pending,
             date_created: current_datetime,
             data_updated: current_datetime,
-        }
+        })
     }
 
     fn update_status(&mut self, new_status: TaskStatus) {
         self.status = new_status
     }
 
-    fn update_name(&mut self, name: &'a str) {
-        self.name = name
+    fn update_name(&mut self, name: &str) {
+        self.name.copy_from_slice(name.as_bytes());
     }
 
-    fn update_description(&mut self, discription: &'a str) {
-        self.discription = discription
+    fn update_description(&mut self, discription: &str) {
+        self.discription.copy_from_slice(discription.as_bytes());
     }
 
     fn print(&self) -> () {
@@ -56,7 +68,7 @@ struct TaskList {
 impl TaskList {
     fn new() -> Self {
         return Self {
-            task_list: [0; 100],
+            task_list: [{Task::new(id, name, discription)}; 100],
             len: 0,
         };
     }
